@@ -1,0 +1,56 @@
+<h4>Sequential search</h4>
+<p>Insert new node as first his next is old first. Symbol table(key/value). Quadratic</p>
+<pre>
+  <code>
+  {{seq}}
+  </code>
+</pre>
+<hr>
+<h4>Binary search</h4>
+<p>Kays are ordered on insert! Rank (indexOf) is used to find index to be inserted. Check if new element is less or bigger than middle and change lo to be middle + 1 or hi too be middle - 1 until until the kay is neither. When the new kay is not last it rearange array to insert at place. On search(get) find rank by kay and return value. Logaritmic. Slow insert!</p>
+<pre>
+  <code>
+  {{bs}}
+  </code>
+</pre>
+<hr>
+<h4>Binary search tree</h4>
+<p>Insert - start from root. Check if new key is smaller or bigger and move to left or righ until it finds empty space. No duplicates. On search start from root, all to the left are smaller, all to the right are bigger. Ordered. Logaritmic, fast insert.</p>
+<pre>
+  <code>
+  {{bst}}
+  </code>
+</pre>
+<hr>
+<h4>Binary search tree Balanced (Red-Block BST)</h4>
+<p>Insert - start from root. All on left are smaller, all on right bigger. Moving down rotate left or right with paren to fill all empty spaces (no height on left or right) Null links are equal hight to root.</p>
+<pre>
+  <code>
+  {{bstb}}
+  </code>
+</pre>
+<hr>
+<h4>Separate chaining hash search</h4>
+<p>Fastest insert and search. Kays are transformed to hash number and values are set in Sequential ST as key/value. Performance depends on hashing algoritm and array length, better distribution and bigger lengt faster performance.</p>
+<pre>
+  <code>
+  {{ht}}
+  </code>
+</pre>
+<hr>
+<h4>Linear probing hash search</h4>
+<p>Slower than Separat chaining. In keys array index is hash(key) and value is key for resolution. Performance greatly depends of initial capacity.</p>
+<pre>
+  <code>
+  {{lp}}
+  </code>
+</pre>
+<hr>
+<h4>ES6 Map</h4>
+<p>Use of Map prototype.</p>
+<pre>
+  <code>
+  {{es6Map}}
+  </code>
+</pre>
+<hr>

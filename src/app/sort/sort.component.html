@@ -1,0 +1,93 @@
+<h4>Comparable</h4>
+<p>Compare objects - "+one" get the primitive, "o1 &lt; o2" </p>
+<pre>
+  <code>
+  {{comparable}}
+  </code>
+</pre>
+<hr>
+<h4>Comparator</h4>
+<p>Reverse order or sort by different property of an object. Use Shell.sort(a, Comparators.DESC);</p>
+<pre>
+  <code>
+  {{comp}}
+  </code>
+</pre>
+<hr>
+<h4>Iterable</h4>
+<p>Iterate over elements: Array.from(pq) or for(let i of pq)</p>
+<pre>
+  <code>
+  {{iterable}}
+  </code>
+</pre>
+<hr>
+<h4>Selection sort (quadratic)</h4>
+<p>Find min and place it first, loop. Sort 1000000 is next to imposible. Test with 10000 numbers is about 260ms.</p>
+<pre>
+  <code>
+  {{selection}}
+  </code>
+</pre>
+<hr>
+<h4>Insertion sort (quadratic)</h4>
+<p>From left to right compare n and n-1 and shift left to position. Sort 1000000 is next to imposible. Test with 10000
+  numbers is about 150ms.</p>
+<pre>
+  <code>
+  {{insertion}}
+  </code>
+</pre>
+<hr>
+<h4>Shell sort (linear)</h4>
+<p>From left to right compare n and n-step and shift left step, every loop the step get smaller => 1, modified
+  insertion. Greatly reduce shifting elements in array. Sort 1000000 in 518ms.</p>
+<pre>
+  <code>
+  {{shell}}
+  </code>
+</pre>
+<hr>
+<h4>Merge sort (linear)</h4>
+<p>Merge sort is algorithm optimal for compares but not for space. Divide-and-conquer. Divide the array to sub-arrays
+  and sort them top to bottom. May be slower than Shell sort for 1000000 elements. Merge bottom up is no recursion
+  implementation.</p>
+<pre>
+  <code>
+  {{ms}}
+  </code>
+</pre>
+<hr>
+<h4>Quick sort (logaritmic)</h4>
+<p>Use first element as partitioning item, swich element from left and right until all in left are smoller and all in
+  right are bigger. Than partition left and right sides recursivly. Second to Quick3Way practicly.</p>
+<pre>
+  <code>
+  {{quick}}
+  </code>
+</pre>
+<hr>
+<h4>Quick3Way sort (logaritmic)</h4>
+<p>Effective for duplicate keys. Move first element to it position to the right one by one exchange with smaller, bigger
+  are moved to right from right to left. Fastest practicly.</p>
+<pre>
+  <code>
+  {{q3w}}
+  </code>
+</pre>
+<hr>
+<h4>Heap sort (logaritmic, optimal for space)</h4>
+<p>Heap tree is represented as array, from child parent is ch / 2 and next child is ch + 1. First we sort parents thay
+  are in the beginning of the array n / 2. We use SINK. First check witch child is bigger and if bigger child is bigger
+  than the parent than switch parent/child if nesessary. Loop continue for children. The tree is sort with root element
+  on top (first position in array). Root element is moved to last position (final). Last position is new root, sink it
+  down for sub array (without last) loop. For 1000000 elements is behind quick sort.</p>
+<pre>
+  <code>
+  {{hs}}
+  </code>
+</pre>
+<hr>
+<h4>Priority Queue</h4>
+<p>Guaranted logaritmic insert and del max. Sort on insert. All the time is sorted. For dynamiclly changing arrays.</p>
+<hr>
