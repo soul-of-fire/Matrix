@@ -1,5 +1,4 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { GraphsComponent } from './graphs.component';
 import { Operations } from './shared/other/operations';
 import { BagGraph } from './shared/bag-graph';
@@ -13,6 +12,10 @@ import { Cycle } from './shared/other/cycle';
 import { Bipartite } from './shared/other/bipartite';
 import { SymbolEs6 } from './shared/symbol-es6';
 import { routes } from './data/routes';
+import { DegreesOfSeparation } from './shared/other/degrees-of-separation';
+import { tinyDG } from './data/tinyDG';
+import { BagDigraph } from './shared/bag-di-graph';
+import { DirectedDepthFirstSearch } from './shared/directed-depth-first-search';
 
 describe('GraphsComponent', () => {
   let component: GraphsComponent;
@@ -88,5 +91,29 @@ describe('GraphsComponent', () => {
     expect(Operations.avgDegree(G)).toEqual(3.6);
     expect(Operations.maxDegree(G)).toEqual(6);
     expect(Operations.numberOfSelfLoops(G)).toEqual(0);
+  });
+
+  it('should find degrees of separation', () => {
+    const degree = DegreesOfSeparation.degrees(routes, ' ', 'LAS', 'MCO');
+    expect(degree).toEqual(['LAS', 'PHX', 'ORD', 'ATL', 'MCO']);
+  });
+
+  it('should create digraph', () => {
+    const array = Operations.stringToArrayOfArrays(tinyDG);
+    const DG = new BagDigraph(array.length);
+    for(let a of array) {
+      DG.addEdge(a[0], a[1]);
+    }
+    expect(Array.from(DG.adj(5))).toEqual([4]);
+  });
+
+  it('should find connected elements in digraph', () => {
+    const array = Operations.stringToArrayOfArrays(tinyDG);
+    const DG = new BagDigraph(array.length);
+    for(let a of array) {
+      DG.addEdge(a[0], a[1]);
+    }
+    const ddfs = new DirectedDepthFirstSearch(DG, 0);
+    expect(Array.from(ddfs)).toEqual([0,1,2,3,4,5]);
   });
 });

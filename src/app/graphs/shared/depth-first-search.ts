@@ -31,12 +31,12 @@ export class DepthFirstSearch implements Iterable<number> {
   [Symbol.iterator]() {
     let a = this.isMarked.reduce((accu, v, i) =>
       v ? accu.concat(i) : accu, []
-    );
+    ).reverse();
     return {
       next(): IteratorResult<any> {
         return {
           done: a.length == 0,
-          value: a.shift()
+          value: a.pop()
         };
       }
     };

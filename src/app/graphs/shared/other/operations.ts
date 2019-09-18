@@ -1,4 +1,5 @@
 import { Graph } from '../interfaces/graph';
+import { Comparable } from 'src/app/sort/comparable/comparable';
 
 export class Operations {
   public static degree(G: Graph, v: number): number {
@@ -41,5 +42,14 @@ export class Operations {
 
   public static stringToArrayOfStringArrays(file: string, sp: string) {
     return file.split('\n').map(x => x.split(sp));
+  }
+
+  public static numberOfVertices(a: Array<Array<Comparable>>) {
+    const s = new Set<Comparable>();
+    for(let sub of a) {
+      s.add(sub[0]);
+      s.add(sub[1]);
+    }
+    return s.size;
   }
 }

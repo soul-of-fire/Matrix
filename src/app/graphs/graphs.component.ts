@@ -14,6 +14,10 @@ import { Bipartite } from './shared/other/bipartite';
 import { SymbolClient } from './shared/other/symbol-client';
 import { routes } from './data/routes';
 import { movies } from './data/movies';
+import { DegreesOfSeparation } from './shared/other/degrees-of-separation';
+import { BagDigraph } from './shared/bag-di-graph';
+import { tinyDG } from './data/tinyDG';
+import { DirectedDepthFirstSearch } from './shared/directed-depth-first-search';
 
 @Component({
   selector: 'app-graphs',
@@ -25,10 +29,30 @@ export class GraphsComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    const bag = new BagGraph(Operations.stringToArrayOfArrays(tinyG));
-    console.log(bag.toString());
+    // const bag = new BagGraph(Operations.stringToArrayOfArrays(tinyG));
+    // console.log(bag.toString());
     // this.depthFirst(bag);
     // this.graph();
+    // this.degrees();
+    // this.directedGraph();    
+  }
+
+  private directedGraph() {
+    const array = Operations.stringToArrayOfArrays(tinyDG);
+    const DG = new BagDigraph(Operations.numberOfVertices(array));
+    for(let a of array) {
+      DG.addEdge(a[0], a[1]);
+    }
+    console.log(DG.toString());
+    const ddfs = new DirectedDepthFirstSearch(DG, 0);
+    console.log('directed depth first search:', Array.from(ddfs).join(' '));
+  }
+  
+  private degrees() {
+    const route = DegreesOfSeparation.degrees(routes, ' ', 'LAS', 'MCO');
+    console.log(route.join(' '));
+    const movie = DegreesOfSeparation.degrees(movies, '/', 'Bacon, Kevin', 'Kidman, Nicole');
+    console.log(movie.join('\n'));
   }
 
   private graph() {
