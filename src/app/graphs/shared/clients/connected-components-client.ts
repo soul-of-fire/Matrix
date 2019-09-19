@@ -1,7 +1,6 @@
-import { Operations } from './operations';
+import { Operations } from '../other/operations';
 import { BagGraph } from '../bag-graph';
-import { ConnectedComponents } from './connected-components';
-import { Bag } from 'src/app/fundamentals/data-structures/bag';
+import { ConnectedComponents } from '../other/connected-components';
 
 export class ConnectedComponentsClient {
   public static connect(file: string) {

@@ -2,22 +2,30 @@ import { Component, OnInit } from '@angular/core';
 import { BagGraph } from './shared/bag-graph';
 import { Operations } from './shared/other/operations';
 import { tinyG } from './data/tinyG';
-import { SearchClient } from './shared/other/search-client';
+import { SearchClient } from './shared/clients/search-client';
 import { DepthFirstSearch } from './shared/depth-first-search';
 import { Graph } from './shared/interfaces/graph';
-import { PathClient } from './shared/other/path-client';
+import { PathClient } from './shared/clients/path-client';
 import { DepthFirstPath } from './shared/depth-first-path';
 import { BreadthFirstPath } from './shared/breadth-first-path';
-import { ConnectedComponentsClient } from './shared/other/connected-components-client';
+import { ConnectedComponentsClient } from './shared/clients/connected-components-client';
 import { Cycle } from './shared/other/cycle';
 import { Bipartite } from './shared/other/bipartite';
-import { SymbolClient } from './shared/other/symbol-client';
+import { SymbolClient } from './shared/clients/symbol-client';
 import { routes } from './data/routes';
 import { movies } from './data/movies';
 import { DegreesOfSeparation } from './shared/other/degrees-of-separation';
-import { BagDigraph } from './shared/bag-di-graph';
+import { BagDigraph } from './shared/bag-digraph';
 import { tinyDG } from './data/tinyDG';
 import { DirectedDepthFirstSearch } from './shared/directed-depth-first-search';
+import { DirectedCycle } from './shared/other/directed-cycle';
+import { DepthFirstOrder } from './shared/other/depth-first-order';
+import { Topological } from './shared/other/topological';
+import { TopologicalClient } from './shared/clients/topological-client';
+import { jobs } from './data/jobs';
+import { StrongConnected } from './shared/other/strong-connected';
+import { StrongConnectedComponentsClient } from './shared/clients/strong-connected-components-client';
+import { tinyDAG } from './data/tinyDAG';
 
 @Component({
   selector: 'app-graphs',
@@ -38,14 +46,29 @@ export class GraphsComponent implements OnInit {
   }
 
   private directedGraph() {
-    const array = Operations.stringToArrayOfArrays(tinyDG);
-    const DG = new BagDigraph(Operations.numberOfVertices(array));
-    for(let a of array) {
-      DG.addEdge(a[0], a[1]);
-    }
+    const tDG = Operations.stringToArrayOfArrays(tinyDG);
+    const DG = new BagDigraph(tDG);
     console.log(DG.toString());
     const ddfs = new DirectedDepthFirstSearch(DG, 0);
     console.log('directed depth first search:', Array.from(ddfs).join(' '));
+    console.log('has a cycle:', new DirectedCycle(DG).hasCycle());
+    console.log('cyle:', Array.from(new DirectedCycle(DG).cycle()).join(' '));
+
+    const sc = new StrongConnected(DG);
+    console.log(sc.count());
+    const scClient = StrongConnectedComponentsClient.connect(tinyDG);
+    console.log(StrongConnectedComponentsClient.arraysToString(scClient));
+
+    const tDAG = Operations.stringToArrayOfArrays(tinyDAG);
+    const DAG = new BagDigraph(tDAG);
+    const dfo = new DepthFirstOrder(DAG);
+    console.log('pre:', Array.from(dfo.pre()).join(' '));
+    console.log('post:', Array.from(dfo.post()).join(' '));
+    console.log('reverse post:', Array.from(dfo.reversePost()).join(' '));
+    
+    const topological = new Topological(DAG);
+    console.log('topological:', topological.isDAG ? Array.from(topological.order()).join(' ') : 'cyclic');
+    console.log(TopologicalClient.client(jobs, '/').join('\n'));
   }
   
   private degrees() {
@@ -280,6 +303,126 @@ export class GraphsComponent implements OnInit {
   
     public G(): Graph {
       return this._G;
+    }
+  }`
+
+  ddfs = `private _marked: Array<boolean>;
+
+  constructor(G: Digraph, s: number) {
+    this._marked = [];
+    this.dfs(G, s);
+  }
+
+  private dfs(G: Digraph, v: number): void {
+    this._marked[v] = true;
+    for (let w of G.adj(v)) {
+      if (!this._marked[w]) {
+        this.dfs(G, w);
+      }
+    }
+  }
+
+  public marked(v: number): boolean {
+    return this._marked[v];
+  }`
+
+  dg = `private vertices: number;
+  private edges: number;
+  private adjesent: Array<Bag<number>>;
+
+  constructor(vertices: number) {
+    this.vertices = vertices;
+    this.edges = 0;
+    this.adjesent = [];
+    for (let v = 0; v < this.vertices; v++) {
+      this.adjesent[v] = new Bag<number>();
+    }
+  }
+
+  public V(): number {
+    return this.vertices;
+  }
+
+  public E(): number {
+    return this.edges;
+  }
+
+  public addEdge(v: number, w: number): void {
+    this.adjesent[v].add(w);
+    this.edges++;
+  }
+
+  public adj(v: number): Iterable<number> {
+    return this.adjesent[v];
+  }`
+
+  dfo = `class DepthFirstOrder {
+    private marked: Array<boolean>;
+    private _reversePost: Stack<number>;
+  
+    constructor(G: Digraph) {
+      this._reversePost = new Stack<number>();
+      this.marked = [];
+      for (let v = 0; v < G.V(); v++) {
+        if (!this.marked[v]) {
+          this.dfs(G, v);
+        }
+      }
+    }
+  
+    private dfs(G: Digraph, v: number): void {
+      this.marked[v] = true;
+      for (let w of G.adj(v)) {
+        if (!this.marked[w]) {
+          this.dfs(G, w);
+        }
+      }
+      this._reversePost.push(v);
+    }
+  
+    public reversePost(): Iterable<number> {
+      return this._reversePost;
+    }
+  }`
+
+  sc = `class StrongConnected {
+    private marked: Array<boolean>
+    private _id: Array<number>;
+    private _count: number;
+  
+    constructor(G: Digraph) {
+      this.marked = [];
+      this._id = [];
+      this._count = 0;
+      const order = new DepthFirstOrder(G.reverse());
+      for (let s of order.reversePost()) {
+        if (!this.marked[s]) {
+          this.dfs(G, s);
+          this._count++;
+        }
+      }
+    }
+  
+    private dfs(G: Digraph, v: number): void {
+      this.marked[v] = true;
+      this._id[v] = this._count;
+      for (let w of G.adj(v)) {
+        if (!this.marked[w]) {
+          this.dfs(G, w);
+        }
+      }
+    }
+  
+    public stronglyConnected(v: number, w: number): boolean {
+      return this._id[v] == this._id[w];
+    }
+  
+    public id(v: number): number {
+      return this._id[v];
+    }
+  
+    public count(): number {
+      return this._count;
     }
   }`
 }

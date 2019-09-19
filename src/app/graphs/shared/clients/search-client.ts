@@ -1,4 +1,4 @@
-import { Operations } from './operations';
+import { Operations } from '../other/operations';
 import { BagGraph } from '../bag-graph';
 
 export class SearchClient {
