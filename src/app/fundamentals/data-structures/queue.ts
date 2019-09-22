@@ -5,7 +5,7 @@ export class Queue<Item> implements Iterable<Item> {
   private last: Node<Item>;
   private n: number;
 
-  public Queue() {
+  constructor() {
     this.first = null;
     this.last = null;
     this.n = 0;

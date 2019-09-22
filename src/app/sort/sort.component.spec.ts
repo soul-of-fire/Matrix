@@ -10,11 +10,13 @@ import { MergeBU } from './share/merge-bu';
 import { Sort } from './share/sort';
 import { Quick } from './share/quick';
 import { Quick3Way } from './share/quick-3way';
-import { HeapPriorityQueue } from './share/heap-priority-queue';
+import { HeapPriorityQueueMax } from './share/heap-priority-queue-max';
 import { Comparable } from './comparable/comparable';
 import { Heap } from './share/heap';
 import { Comparator } from './comparable/comparator';
 import { Comparators } from './comparable/comparators';
+import { MinPQ } from './share/min-pq';
+import { IndexMinPQ } from './share/index-min-pq';
 
 describe('SortComponent', () => {
   let component: SortComponent;
@@ -51,13 +53,31 @@ describe('SortComponent', () => {
     ordered(Shell, Comparators.DESC);
   });
 
-  it('should check heap priority queue', () => {
+  it('should check heap priority queue max', () => {
     const a = ['S', 'O', 'R', 'T', 'E', 'X', 'A', 'M', 'P', 'L', 'E'];
     expect(Sort.isSorted(checkHeapPQ(a))).toBeTruthy();
     const b = [50, 40, 100, 10, 30];
     expect(Sort.isSorted(checkHeapPQ(b))).toBeTruthy();
     const c = [new Transaction(50), new Transaction(40), new Transaction(100), new Transaction(10), new Transaction(30)];
     expect(Sort.isSorted(checkHeapPQ(c))).toBeTruthy();
+  });
+
+  it('should check minPQ', () => {
+    const a = ['S', 'O', 'R', 'T', 'E', 'X', 'A', 'M', 'P', 'L', 'E'];
+    expect(Sort.isSorted(checkMinPQ(a), Comparators.DESC)).toBeTruthy();
+    const b = [50, 40, 100, 10, 30];
+    expect(Sort.isSorted(checkMinPQ(b), Comparators.DESC)).toBeTruthy();
+    const c = [new Transaction(50), new Transaction(40), new Transaction(100), new Transaction(10), new Transaction(30)];
+    expect(Sort.isSorted(checkMinPQ(c), Comparators.DESC)).toBeTruthy();
+  });
+
+  it('should check indexMinPQ', () => {
+    const a = [50, 40, 100, 10, 30];
+    const pq = new IndexMinPQ<Comparable>(a.length);
+    for (let i of a) {
+      pq.insert(i, i);
+    }
+    expect(Sort.isSorted(Array.from(pq))).toBeTruthy();
   });
 
   xit('should check sort performance', () => {
@@ -94,9 +114,17 @@ const ordered = (clazz: any, comparator?: Comparator) => {
 }
 
 const checkHeapPQ = (a: Comparable[]) => {
-  const pq = new HeapPriorityQueue();
-    for (let i of a) {
-      pq.insert(i);
-    }
-    return Array.from(pq).reverse();
+  const pq = new HeapPriorityQueueMax();
+  for (let i of a) {
+    pq.insert(i);
+  }
+  return Array.from(pq).reverse();
+}
+
+const checkMinPQ = (a: Comparable[]) => {
+  const pq = new MinPQ<Comparable>();
+  for (let i of a) {
+    pq.insert(i);
+  }
+  return Array.from(pq).reverse();
 }

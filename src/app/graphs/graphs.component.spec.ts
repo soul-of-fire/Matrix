@@ -21,6 +21,10 @@ import { jobs } from './data/jobs';
 import { SymbolEs6Digraph } from './shared/symbol-es6-digraph';
 import { DepthFirstOrder } from './shared/other/depth-first-order';
 import { StrongConnected } from './shared/other/strong-connected';
+import { EdgeWeightedGraph } from './shared/edge-weighted-graph';
+import { tinyEWG } from './data/tinyEWG';
+import { LazyPrimMST } from './shared/lazy-prims-mst';
+import { KruskalMST } from './shared/kruskal-mst';
 
 describe('GraphsComponent', () => {
   let component: GraphsComponent;
@@ -148,6 +152,21 @@ describe('GraphsComponent', () => {
     expect(sc.count()).toEqual(5);
     expect(sc.stronglyConnected(2, 3)).toBeTruthy();
     expect(sc.stronglyConnected(0, 6)).toBeFalsy();
+  });
+
+  it('should find prim MST lazy', () => {
+    const ewg = new EdgeWeightedGraph(Operations.stringToArrayOfArrays(tinyEWG));
+    expect(Array.from(ewg.adj(0)).map(x => +x)).toEqual([0.58,0.26,0.38,0.16]);
+    const lp = new LazyPrimMST(ewg);
+    expect(Array.from(lp.edges()).map(x => +x)).toEqual([0.16,0.19,0.26,0.17,0.28,0.35,0.4]);
+    expect(lp.weight).toEqual(1.81);
+  });
+
+  it('should find kruskal MST', () => {
+    const ewg = new EdgeWeightedGraph(Operations.stringToArrayOfArrays(tinyEWG));
+    const kr = new KruskalMST(ewg);
+    expect(Array.from(kr.edges()).map(x => +x)).toEqual([0.16,0.17,0.19,0.26,0.28,0.35,0.4]);
+    expect(kr.weight()).toEqual(1.81);
   });
 });
 

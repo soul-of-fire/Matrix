@@ -9,13 +9,15 @@ import { Client } from './shared/client';
 import { SortComponent } from './sort/sort.component';
 import { SearchComponent } from './search/search.component';
 import { GraphsComponent } from './graphs/graphs.component';
+import { HackerrankComponent } from './hackerrank/hackerrank.component';
 
 const routes = [
   { path: '', redirectTo: 'fundamentals', pathMatch: 'full' },
   { path: 'fundamentals', component: FundamentalsComponent },
   { path: 'sort', component: SortComponent },
   { path: 'search', component: SearchComponent },
-  { path: 'graphs', component: GraphsComponent }
+  { path: 'graphs', component: GraphsComponent },
+  { path: 'hackerrank', component: HackerrankComponent }
 ];
 
 @NgModule({
@@ -29,7 +31,8 @@ const routes = [
     FundamentalsComponent,
     SortComponent,
     SearchComponent,
-    GraphsComponent
+    GraphsComponent,
+    HackerrankComponent
   ],
   providers: [Client],
   bootstrap: [AppComponent]

@@ -27,6 +27,7 @@ export class BagGraph implements Graph {
       }
     }
   }
+  
   public V(): number {
     return this.vertices;
   }

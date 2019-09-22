@@ -1,6 +1,6 @@
 import { Comparable } from '../comparable/comparable';
 
-export class HeapPriorityQueue implements Iterable<Comparable> {
+export class HeapPriorityQueueMax implements Iterable<Comparable> {
   private pq: Comparable[];
   private N = 0;
 
@@ -65,14 +65,8 @@ export class HeapPriorityQueue implements Iterable<Comparable> {
     const iterator = {
       next(): IteratorResult<Comparable> {
         const el = _this.delMax();
-        if (!el) {
-          return { 
-            done: true, 
-            value: null 
-          };
-        }
         return { 
-          done: false, 
+          done: !el, 
           value: el 
         };
       }

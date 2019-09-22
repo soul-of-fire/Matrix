@@ -26,6 +26,14 @@ import { jobs } from './data/jobs';
 import { StrongConnected } from './shared/other/strong-connected';
 import { StrongConnectedComponentsClient } from './shared/clients/strong-connected-components-client';
 import { tinyDAG } from './data/tinyDAG';
+import { EdgeWeightedGraph } from './shared/edge-weighted-graph';
+import { tinyEWG } from './data/tinyEWG';
+import { LazyPrimMST } from './shared/lazy-prims-mst';
+import { PrimMST } from './shared/prim-mst';
+import { KruskalMST } from './shared/kruskal-mst';
+import { MinPQ } from '../sort/share/min-pq';
+import { Comparable } from '../sort/comparable/comparable';
+import { IndexMinPQ } from '../sort/share/index-min-pq';
 
 @Component({
   selector: 'app-graphs',
@@ -43,6 +51,18 @@ export class GraphsComponent implements OnInit {
     // this.graph();
     // this.degrees();
     // this.directedGraph();    
+    this.weightedGraph();
+  }
+
+  private weightedGraph() {
+    const ewg = new EdgeWeightedGraph(Operations.stringToArrayOfArrays(tinyEWG));
+    // console.log(ewg);
+    // const lp = new LazyPrimMST(ewg);
+    // lp.toString();
+    // const ep = new PrimMST(ewg);
+    // ep.toString();
+    const kr = new KruskalMST(ewg);
+    kr.toString();
   }
 
   private directedGraph() {
@@ -423,6 +443,67 @@ export class GraphsComponent implements OnInit {
   
     public count(): number {
       return this._count;
+    }
+  }`
+
+  primMST = `class LazyPrimMST {
+    public weight: number = 0;
+    private marked: Array<boolean>;
+    private mst: Queue<Edge>;
+    private pq: MinPQ<Edge>;
+  
+    constructor(G: EdgeWeightedGraph) {
+      this.pq = new MinPQ<Edge>();
+      this.marked = [];
+      this.mst = new Queue<Edge>();
+      this.visit(G, 0);
+      while (!this.pq.isEmpty()) {
+        const e = <Edge>this.pq.delMin();
+        const v = e.either();
+        const w = e.other(v);
+        if (this.marked[v] && this.marked[w]) {
+          continue;
+        }
+        this.mst.enqueue(e);
+        this.weight += e.weight;
+        if (!this.marked[v]) {
+          this.visit(G, v);
+        }
+        if (!this.marked[w]) {
+          this.visit(G, w);
+        }
+      }
+    }
+  
+    private visit(G: EdgeWeightedGraph, v: number): void {
+      this.marked[v] = true;
+      for (let e of G.adj(v)) {
+        if (!this.marked[e.other(v)]) {
+          this.pq.insert(e);
+        }
+      }
+    }
+  
+    public edges(): Iterable<Edge> {
+      return this.mst;
+    }
+  }`
+
+  kr = `private mst: Queue<Edge>;
+
+  constructor(G: EdgeWeightedGraph) {
+    this.mst = new Queue<Edge>();
+    const pq = new MinPQ<Edge>(G);
+    const uf = new UF(G.V());
+    while (!pq.isEmpty() && this.mst.size() < G.V() - 1) {
+      const e = pq.delMin();
+      const v = e.either();
+      const w = e.other(v);
+      if (uf.connected(v, w)) {
+        continue;
+      }
+      uf.union(v, w);
+      this.mst.enqueue(e);
     }
   }`
 }
