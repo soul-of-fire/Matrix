@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Merchant } from './shared/merchant';
 import { Valleys } from './shared/valleys';
+import { JumpOnClouds } from './shared/jump-on-cluds';
+import { RepetedString } from './shared/repeted-string';
 
 @Component({
   selector: 'app-hackerrank',
@@ -14,6 +16,8 @@ export class HackerrankComponent implements OnInit {
   ngOnInit() {
     // new Merchant().performance();
     // new Valleys().performance();
+    // new JumpOnClouds().performance();
+    // new RepetedString().performance();
   }
 
   merchant = `sockMerchant(n: number, ar: Array<number>) {
@@ -45,6 +49,24 @@ export class HackerrankComponent implements OnInit {
       }
       i++;
     }
+    return result;
+  }`
+
+  jumpOnClouds = `jump(a: Array<number>) {
+    let result = 0;
+    for (let i = 0; i < a.length - 1; i = i + ((i + 2 < a.length && !a[i + 2]) ? 2 : 1)) {
+      result++;
+    }
+    return result;
+  }`
+
+  repeatingString = `count(n: number, s: string) {
+    let result = 0;
+    const sa = [...s];
+    const l = sa.length;
+    const t = Math.floor(n / l);
+    const occu = sa.reduce((accu, x) => x == 'a' ? accu + 1 : accu, 0);
+    result = (occu * t) + (sa.slice(0, n - (l * t)).reduce((accu, x) => x == 'a' ? accu + 1 : accu, 0));
     return result;
   }`
 }

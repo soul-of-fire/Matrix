@@ -25,6 +25,9 @@ import { EdgeWeightedGraph } from './shared/edge-weighted-graph';
 import { tinyEWG } from './data/tinyEWG';
 import { LazyPrimMST } from './shared/lazy-prims-mst';
 import { KruskalMST } from './shared/kruskal-mst';
+import { EdgeWeightedDigraph } from './shared/edge-weighted-digraph';
+import { tinyEWD } from './data/tinyEWD';
+import { DirectedGraphShortestPath } from './shared/directed-graph-shortest-path';
 
 describe('GraphsComponent', () => {
   let component: GraphsComponent;
@@ -167,6 +170,14 @@ describe('GraphsComponent', () => {
     const kr = new KruskalMST(ewg);
     expect(Array.from(kr.edges()).map(x => +x)).toEqual([0.16,0.17,0.19,0.26,0.28,0.35,0.4]);
     expect(kr.weight()).toEqual(1.81);
+  });
+
+  it('should find shortest path in directed graph Dijkrsta', () => {
+    const dg = new EdgeWeightedDigraph(Operations.stringToArrayOfArrays(tinyEWD));
+    expect(Array.from(dg.adj(0)).map(x => +x)).toEqual([0.26,0.38]);
+    const sp = new DirectedGraphShortestPath(dg, 0);
+    expect(Array.from(sp.pathTo(6)).map(x => +x)).toEqual([0.26,0.34,0.39,0.52]);
+    expect(sp.distTo(1)).toEqual(1.05);
   });
 });
 

@@ -34,6 +34,9 @@ import { KruskalMST } from './shared/kruskal-mst';
 import { MinPQ } from '../sort/share/min-pq';
 import { Comparable } from '../sort/comparable/comparable';
 import { IndexMinPQ } from '../sort/share/index-min-pq';
+import { EdgeWeightedDigraph } from './shared/edge-weighted-digraph';
+import { tinyEWD } from './data/tinyEWD';
+import { DirectedGraphShortestPath } from './shared/directed-graph-shortest-path';
 
 @Component({
   selector: 'app-graphs',
@@ -51,9 +54,17 @@ export class GraphsComponent implements OnInit {
     // this.graph();
     // this.degrees();
     // this.directedGraph();    
-    this.weightedGraph();
+    // this.weightedGraph();
+    this.directedWeightGraph();
   }
 
+  private directedWeightGraph() {
+    const ewdg = new EdgeWeightedDigraph(Operations.stringToArrayOfArrays(tinyEWD));
+    console.log(ewdg);
+    const sp = new DirectedGraphShortestPath(ewdg, 0);
+    sp.toString();
+  }
+ 
   private weightedGraph() {
     const ewg = new EdgeWeightedGraph(Operations.stringToArrayOfArrays(tinyEWG));
     // console.log(ewg);
@@ -505,5 +516,57 @@ export class GraphsComponent implements OnInit {
       uf.union(v, w);
       this.mst.enqueue(e);
     }
+  }`
+
+  dgsp = `private edgeTo: DirectedEdge[];
+  private _distTo: number[];
+  private pq: IndexMinPQ<number>;
+
+  constructor(G: EdgeWeightedDigraph, s: number) {
+    this.edgeTo = [];
+    this._distTo = [];
+    this.pq = new IndexMinPQ<number>(G.V());
+    for (let v = 0; v < G.V(); v++) {
+      this._distTo[v] = Number.POSITIVE_INFINITY;
+    }
+    this._distTo[s] = 0.0;
+    this.pq.insert(s, 0.0);
+    while (!this.pq.isEmpty()) {
+      this.relax(G, this.pq.delMin());
+    }
+  }
+
+  private relax(G: EdgeWeightedDigraph, v: number): void {
+    for (let e of G.adj(v)) {
+      let w = e.to;
+      if (this._distTo[w] > this._distTo[v] + e.weight) {
+        this._distTo[w] = this._distTo[v] + e.weight;
+        this.edgeTo[w] = e;
+        if (this.pq.contains(w)) {
+          this.pq.change(w, this._distTo[w]);
+        } else {
+          this.pq.insert(w, this._distTo[w]);
+        }
+      }
+    }
+  }
+
+  public distTo(v: number): number {
+    return this._distTo[v];
+  }
+
+  public hasPathTo(v: number): boolean {
+    return this._distTo[v] < Number.POSITIVE_INFINITY;
+  }
+
+  public pathTo(v: number): Iterable<DirectedEdge> {
+    if (!this.hasPathTo(v)) {
+      return null;
+    }
+    const path = new Stack<DirectedEdge>();
+    for (let e = this.edgeTo[v]; e != null; e = this.edgeTo[e.from]) {
+      path.push(e);
+    }
+    return path;
   }`
 }
