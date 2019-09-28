@@ -3,6 +3,7 @@ import { Merchant } from './shared/merchant';
 import { Valleys } from './shared/valleys';
 import { JumpOnClouds } from './shared/jump-on-cluds';
 import { RepetedString } from './shared/repeted-string';
+import { InterviewQuestions } from './shared/interview-questions';
 
 @Component({
   selector: 'app-hackerrank',
@@ -18,6 +19,7 @@ export class HackerrankComponent implements OnInit {
     // new Valleys().performance();
     // new JumpOnClouds().performance();
     // new RepetedString().performance();
+    // new InterviewQuestions();
   }
 
   merchant = `sockMerchant(n: number, ar: Array<number>) {

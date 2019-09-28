@@ -28,6 +28,10 @@ import { KruskalMST } from './shared/kruskal-mst';
 import { EdgeWeightedDigraph } from './shared/edge-weighted-digraph';
 import { tinyEWD } from './data/tinyEWD';
 import { DirectedGraphShortestPath } from './shared/directed-graph-shortest-path';
+import { EdgeWeightedDirectedCycle } from './shared/other/edge-weight-directed-cycle';
+import { tinyEWDAG } from './data/tinyEWDAG';
+import { DepthFirstOrderWeight } from './shared/other/depth-first-order-weight';
+import { AcyclicShortestPath } from './shared/acyclic-shortest-path';
 
 describe('GraphsComponent', () => {
   let component: GraphsComponent;
@@ -179,9 +183,26 @@ describe('GraphsComponent', () => {
     expect(Array.from(sp.pathTo(6)).map(x => +x)).toEqual([0.26,0.34,0.39,0.52]);
     expect(sp.distTo(1)).toEqual(1.05);
   });
+
+  it('should find cycle in weighted digraph', () => {
+    const DG = weightedDiGraph();
+    const dc = new EdgeWeightedDirectedCycle(DG);
+    expect(dc.hasCycle()).toBeFalsy();
+  });
+
+  fit('should find shortest path in weighted directed graph', () => {
+    const dg = new EdgeWeightedDigraph(Operations.stringToArrayOfArrays(tinyEWDAG));
+    const acyclic = new AcyclicShortestPath(dg, 5);
+    expect(acyclic.distTo(6)).toEqual(1.13);
+  });
 });
 
-const diGraph = (file: string = tinyDG, sp: string = ' ') => {
+const diGraph = (file: string = tinyDG) => {
   const array = Operations.stringToArrayOfArrays(file);
   return new BagDigraph(array);
+}
+
+const weightedDiGraph = (file: string = tinyEWDAG) => {
+  const array = Operations.stringToArrayOfArrays(file);
+  return new EdgeWeightedDigraph(array);
 }

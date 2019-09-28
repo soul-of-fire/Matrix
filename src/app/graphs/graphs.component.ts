@@ -37,6 +37,8 @@ import { IndexMinPQ } from '../sort/share/index-min-pq';
 import { EdgeWeightedDigraph } from './shared/edge-weighted-digraph';
 import { tinyEWD } from './data/tinyEWD';
 import { DirectedGraphShortestPath } from './shared/directed-graph-shortest-path';
+import { AcyclicShortestPath } from './shared/acyclic-shortest-path';
+import { tinyEWDAG } from './data/tinyEWDAG';
 
 @Component({
   selector: 'app-graphs',
@@ -59,10 +61,14 @@ export class GraphsComponent implements OnInit {
   }
 
   private directedWeightGraph() {
-    const ewdg = new EdgeWeightedDigraph(Operations.stringToArrayOfArrays(tinyEWD));
-    console.log(ewdg);
-    const sp = new DirectedGraphShortestPath(ewdg, 0);
-    sp.toString();
+    // const ewdg = new EdgeWeightedDigraph(Operations.stringToArrayOfArrays(tinyEWD));
+    // console.log(ewdg);
+    // const sp = new DirectedGraphShortestPath(ewdg, 0);
+    // sp.toString();
+    const dg = new EdgeWeightedDigraph(Operations.stringToArrayOfArrays(tinyEWDAG));
+    console.log(dg);
+    const acyclic = new AcyclicShortestPath(dg, 5);
+    acyclic.toString();
   }
  
   private weightedGraph() {
@@ -93,8 +99,6 @@ export class GraphsComponent implements OnInit {
     const tDAG = Operations.stringToArrayOfArrays(tinyDAG);
     const DAG = new BagDigraph(tDAG);
     const dfo = new DepthFirstOrder(DAG);
-    console.log('pre:', Array.from(dfo.pre()).join(' '));
-    console.log('post:', Array.from(dfo.post()).join(' '));
     console.log('reverse post:', Array.from(dfo.reversePost()).join(' '));
     
     const topological = new Topological(DAG);
@@ -568,5 +572,54 @@ export class GraphsComponent implements OnInit {
       path.push(e);
     }
     return path;
+  }`
+
+  acyclic = `class AcyclicShortestPath {
+    private _edgeTo: Array<DirectedEdge>;
+    private _distTo: Array<number>;
+    private G: EdgeWeightedDigraph;
+  
+    constructor(G: EdgeWeightedDigraph, s: number) {
+      this.G = G;
+      this._edgeTo = [];
+      this._distTo = [];
+      for (let v = 0; v < G.V(); v++) {
+        this._distTo[v] = Number.POSITIVE_INFINITY;
+      }
+      this._distTo[s] = 0.0;
+      const top = new TopologicalWeight(G);
+      for (let v of top.order()) {
+        this.relax(G, v);
+      }
+    }
+  
+    private relax(G: EdgeWeightedDigraph, v: number): void {
+      for (let e of G.adj(v)) {
+        let w = e.to;
+        if (this._distTo[w] > this._distTo[v] + e.weight) {
+          this._distTo[w] = this._distTo[v] + e.weight;
+          this._edgeTo[w] = e;
+        }
+      }
+    }
+  
+    public distTo(v: number): number {
+      return this._distTo[v];
+    }
+  
+    public hasPathTo(v: number): boolean {
+      return this._distTo[v] < Number.POSITIVE_INFINITY;
+    }
+  
+    public pathTo(v: number): Iterable<DirectedEdge> {
+      if (!this.hasPathTo(v)) {
+        return null;
+      }
+      const path = new Stack<DirectedEdge>();
+      for (let e = this._edgeTo[v]; e != null; e = this._edgeTo[e.from]) {
+        path.push(e);
+      }
+      return path;
+    }
   }`
 }
