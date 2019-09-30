@@ -97,10 +97,34 @@
 </pre>
 <hr>
 <h4>Directed graph shortest path Acyclic</h4>
-<p></p>
+<p>Check for cyclic. Relax edges in topological order every edge is relaxed exactly once. calculate every path and replace with shortest.</p>
 <pre>
   <code>
     {{acyclic}}
+  </code>
+</pre>
+<hr>
+<h4>Schedule parallel jobs Acyclic</h4>
+<p>Search longest path of paralel jobs. Use of Longest Path Acyclic algoritm.</p>
+<pre>
+  <code>
+    {{pschedule}}
+  </code>
+</pre>
+<hr>
+<h4>Shortest path cyclic negative weights Bellman-Ford</h4>
+<p>Negative weights could lead to infinity loop. Counter track passes to prevent that.</p>
+<pre>
+  <code>
+    {{spBF}}
+  </code>
+</pre>
+<hr>
+<h4>Arbitrage - find negative cycle</h4>
+<p>Replace each weight by its logarithm, negated. With this change, computing path weights by multiplying edge weights in the original problem corresponds to adding them in the transformed problem. </p>
+<pre>
+  <code>
+    {{arbit}}
   </code>
 </pre>
 <hr>

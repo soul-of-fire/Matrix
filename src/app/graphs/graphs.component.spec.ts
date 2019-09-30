@@ -32,6 +32,10 @@ import { EdgeWeightedDirectedCycle } from './shared/other/edge-weight-directed-c
 import { tinyEWDAG } from './data/tinyEWDAG';
 import { DepthFirstOrderWeight } from './shared/other/depth-first-order-weight';
 import { AcyclicShortestPath } from './shared/acyclic-shortest-path';
+import { ParallelSchedule } from './shared/parallel-schedule';
+import { jobsPC } from './data/jobsPC';
+import { tinyEWDn } from './data/tinyEWDn';
+import { BellmanFordSP } from './shared/bellman-ford-shortest-path';
 
 describe('GraphsComponent', () => {
   let component: GraphsComponent;
@@ -163,24 +167,24 @@ describe('GraphsComponent', () => {
 
   it('should find prim MST lazy', () => {
     const ewg = new EdgeWeightedGraph(Operations.stringToArrayOfArrays(tinyEWG));
-    expect(Array.from(ewg.adj(0)).map(x => +x)).toEqual([0.58,0.26,0.38,0.16]);
+    expect(Array.from(ewg.adj(0)).map(x => +x)).toEqual([0.58, 0.26, 0.38, 0.16]);
     const lp = new LazyPrimMST(ewg);
-    expect(Array.from(lp.edges()).map(x => +x)).toEqual([0.16,0.19,0.26,0.17,0.28,0.35,0.4]);
+    expect(Array.from(lp.edges()).map(x => +x)).toEqual([0.16, 0.19, 0.26, 0.17, 0.28, 0.35, 0.4]);
     expect(lp.weight).toEqual(1.81);
   });
 
   it('should find kruskal MST', () => {
     const ewg = new EdgeWeightedGraph(Operations.stringToArrayOfArrays(tinyEWG));
     const kr = new KruskalMST(ewg);
-    expect(Array.from(kr.edges()).map(x => +x)).toEqual([0.16,0.17,0.19,0.26,0.28,0.35,0.4]);
+    expect(Array.from(kr.edges()).map(x => +x)).toEqual([0.16, 0.17, 0.19, 0.26, 0.28, 0.35, 0.4]);
     expect(kr.weight()).toEqual(1.81);
   });
 
   it('should find shortest path in directed graph Dijkrsta', () => {
     const dg = new EdgeWeightedDigraph(Operations.stringToArrayOfArrays(tinyEWD));
-    expect(Array.from(dg.adj(0)).map(x => +x)).toEqual([0.26,0.38]);
+    expect(Array.from(dg.adj(0)).map(x => +x)).toEqual([0.26, 0.38]);
     const sp = new DirectedGraphShortestPath(dg, 0);
-    expect(Array.from(sp.pathTo(6)).map(x => +x)).toEqual([0.26,0.34,0.39,0.52]);
+    expect(Array.from(sp.pathTo(6)).map(x => +x)).toEqual([0.26, 0.34, 0.39, 0.52]);
     expect(sp.distTo(1)).toEqual(1.05);
   });
 
@@ -190,10 +194,24 @@ describe('GraphsComponent', () => {
     expect(dc.hasCycle()).toBeFalsy();
   });
 
-  fit('should find shortest path in weighted directed graph', () => {
+  it('should find shortest path in weighted directed graph', () => {
     const dg = new EdgeWeightedDigraph(Operations.stringToArrayOfArrays(tinyEWDAG));
     const acyclic = new AcyclicShortestPath(dg, 5);
     expect(acyclic.distTo(6)).toEqual(1.13);
+  });
+
+  it('should schedule acyclic weighted graph', () => {
+    const schedule = new ParallelSchedule(Operations.stringToArrayOfArrays(jobsPC));
+    expect(schedule.path()[2][1]).toBe(41);
+    expect(schedule.path()[9][1]).toBe(123);
+    expect(schedule.distance()).toBe(173);
+  });
+
+  it('should find shortest path in cyclic weighted graph Bellman-Ford', () => {
+    const nc = new EdgeWeightedDigraph(Operations.stringToArrayOfArrays(tinyEWDn));
+    const bf = new BellmanFordSP(nc, 0);
+    console.log(bf.pathTo(5));
+    expect(Array.from(bf.pathTo(5)).map(x => +x)).toEqual([0.26, 0.34, 0.39, 0.52, -1.25, 0.35]);
   });
 });
 

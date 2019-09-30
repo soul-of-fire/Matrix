@@ -44,7 +44,7 @@ export class EdgeWeightedDirectedCycle {
   }
 
   public hasCycle(): boolean {
-    return this._cycle != null;
+    return !!this._cycle;
   }
 
   public cycle(): Iterable<DirectedEdge> {

@@ -39,6 +39,12 @@ import { tinyEWD } from './data/tinyEWD';
 import { DirectedGraphShortestPath } from './shared/directed-graph-shortest-path';
 import { AcyclicShortestPath } from './shared/acyclic-shortest-path';
 import { tinyEWDAG } from './data/tinyEWDAG';
+import { jobsPC } from './data/jobsPC';
+import { ParallelSchedule } from './shared/parallel-schedule';
+import { tinyEWDn } from './data/tinyEWDn';
+import { BellmanFordSP } from './shared/bellman-ford-shortest-path';
+import { Arbitrage } from './shared/arbitrage';
+import { rates } from './data/rates';
 
 @Component({
   selector: 'app-graphs',
@@ -57,14 +63,35 @@ export class GraphsComponent implements OnInit {
     // this.degrees();
     // this.directedGraph();    
     // this.weightedGraph();
-    this.directedWeightGraph();
+    // this.directedWeightGraph();
+    // this.schedule();
+    // this.directedNegativeCycles();
+    // this.arbitrage();
+  }
+
+  private arbitrage() {
+    Arbitrage.find(rates);
+  }
+
+  private directedNegativeCycles() {
+    const nc = new EdgeWeightedDigraph(Operations.stringToArrayOfArrays(tinyEWDn));
+    console.log(nc);
+    const bf = new BellmanFordSP(nc, 0);
+    console.log(bf.pathTo(5));
+    bf.toString();
+  }
+
+  private schedule() {
+    const schedule = new ParallelSchedule(Operations.stringToArrayOfArrays(jobsPC));
+    console.log(schedule.path().map((a) => `${a[0]}: ${a[1].toFixed(1)}`).join('\n'));
+    console.log(schedule.distance().toFixed(1));
   }
 
   private directedWeightGraph() {
-    // const ewdg = new EdgeWeightedDigraph(Operations.stringToArrayOfArrays(tinyEWD));
-    // console.log(ewdg);
-    // const sp = new DirectedGraphShortestPath(ewdg, 0);
-    // sp.toString();
+    const ewdg = new EdgeWeightedDigraph(Operations.stringToArrayOfArrays(tinyEWD));
+    console.log(ewdg);
+    const sp = new DirectedGraphShortestPath(ewdg, 0);
+    sp.toString();
     const dg = new EdgeWeightedDigraph(Operations.stringToArrayOfArrays(tinyEWDAG));
     console.log(dg);
     const acyclic = new AcyclicShortestPath(dg, 5);
@@ -622,4 +649,158 @@ export class GraphsComponent implements OnInit {
       return path;
     }
   }`
+
+  pschedule = `class ParallelSchedule {
+    private lp: LongestPathAcyclic;
+    private N: number;
+    private t: number;
+  
+    constructor(array: Array<any>) {
+      this.N = array.length;
+      const G = new EdgeWeightedDigraph(2 * this.N + 2);
+      let s = 2 * this.N;
+      this.t = 2 * this.N + 1;
+      for (let i = 0; i < this.N; i++) {
+        const a = array[i];
+        let duration = a[0];
+        G.addEdge(new DirectedEdge(i, i + this.N, duration));
+        G.addEdge(new DirectedEdge(s, i, 0.0));
+        G.addEdge(new DirectedEdge(i + this.N, this.t, 0.0));
+        for (let j = 1; j < a.length; j++) {
+          const successor = a[j];
+          G.addEdge(new DirectedEdge(i + this.N, successor, 0.0));
+        }
+      }
+      this.lp = new LongestPathAcyclic(G, s);
+    }
+  
+    public path() {
+      const m = new Map();
+      for (let i = 0; i < this.N; i++) {
+        m.set(i, this.lp.distTo(i));
+      }
+      m[Symbol.iterator] = function* () {
+        yield* [...this.entries()].sort((a, b) => a[1] - b[1]);
+      }
+      return Array.from(m);
+    }
+  
+    public distance() {
+      return this.lp.distTo(this.t);
+    }
+  }`
+
+  spBF = `class BellmanFordSP {
+    private _distTo: Array<number>;
+    private _edgeTo: Array<DirectedEdge>;
+    private _onQ: Array<boolean>;
+    private _queue: Queue<number>;
+    private _cost: number;
+    private _cycle: Iterable<DirectedEdge>;
+    private V: number;
+  
+    constructor(G: EdgeWeightedDigraph, s: number) {
+      this._cost = 0;
+      this.V = G.V();
+      this._distTo = [];
+      this._edgeTo = [];
+      this._onQ = [];
+      this._queue = new Queue<number>();
+      for (let v = 0; v < G.V(); v++) {
+        this._distTo[v] = Number.POSITIVE_INFINITY;
+      }
+      this._distTo[s] = 0.0;
+      this._queue.enqueue(s);
+      this._onQ[s] = true;
+      while (!this._queue.isEmpty() && !this.hasNegativeCycle()) {
+        const v = this._queue.dequeue();
+        this._onQ[v] = false;
+        this.relax(G, v);
+      }
+    }
+  
+    private relax(G: EdgeWeightedDigraph, v: number): void {
+      for (let e of G.adj(v)) {
+        let w = e.to;
+        if (this._distTo[w] > this._distTo[v] + e.weight) {
+          this._distTo[w] = this._distTo[v] + e.weight;
+          this._edgeTo[w] = e;
+          if (!this._onQ[w]) {
+            this._queue.enqueue(w);
+            this._onQ[w] = true;
+          }
+        }
+        if (this._cost++ % G.V() == 0) {
+          this.findNegativeCycle();
+          if (this.hasNegativeCycle()) {
+            return;
+          }
+        }
+      }
+    }
+  
+    public distTo(v: number): number {
+      return this._distTo[v];
+    }
+  
+    public hasPathTo(v: number): boolean {
+      return this._distTo[v] < Number.POSITIVE_INFINITY;
+    }
+  
+    public pathTo(v: number): Iterable<DirectedEdge> {
+      if (!this.hasPathTo(v)) {
+        return null;
+      }
+      const path = new Stack<DirectedEdge>();
+      for (let e = this._edgeTo[v]; e != null; e = this._edgeTo[e.from]) {
+        path.push(e);
+      }
+      return path;
+    }
+  
+    private findNegativeCycle(): void {
+      const V = this._edgeTo.length;
+      const spt = new EdgeWeightedDigraph(V);
+      for (let v = 0; v < V; v++) {
+        if (this._edgeTo[v] != null) {
+          spt.addEdge(this._edgeTo[v]);
+        }
+      }
+      const cf = new EdgeWeightedDirectedCycle(spt);
+      this._cycle = cf.cycle();
+    }
+  
+    public hasNegativeCycle(): boolean {
+      return !!this._cycle;
+    }
+  
+    public negativeCycle(): Iterable<DirectedEdge> {
+      return this._cycle;
+    }
+  }`
+
+  arbit = `class Arbitrage {
+    public static  find(file: string): void {
+      const array = Operations.stringToArrayOfStringArrays(file, ' ');
+      const V = array.length;
+      const name = [];
+      const G = new EdgeWeightedDigraph(V);
+      for (let v = 0; v < V; v++) {
+        name[v] = array[v][0];
+        for (let w = 0; w < V; w++) {
+          const rate = +array[v][w + 1];
+          const e = new DirectedEdge(v, w, -Math.log(rate));
+          G.addEdge(e);
+        }
+      }
+      const spt = new BellmanFordSP(G, 0);
+      if (spt.hasNegativeCycle()) {
+        let stake = 1000.0;
+        for (let e of spt.negativeCycle()) {
+          console.log(e);
+        }
+      } else {
+        console.log("No arbitrage opportunity");
+      }
+    }`
 }
